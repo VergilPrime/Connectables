@@ -1,0 +1,7 @@
+name: Connectables
+version: '${version}'
+main: com.vergilprime.connectables.Plugin
+api-version: 1.19
+depend: [ Oraxen ]
+authors: [ VergilPrime ]
+description: Adds a connectable mechanic to Oraxen's furniture
