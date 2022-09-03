@@ -9,10 +9,11 @@ public class DirectionMap {
     private HashMap<String,BlockFace> faces;
 
     public DirectionMap(String front, String right, String back, String left) {
-        this.faces.put(front, BlockFace.valueOf(front));
-        this.faces.put(right, BlockFace.valueOf(right));
-        this.faces.put(back, BlockFace.valueOf(back));
-        this.faces.put(left, BlockFace.valueOf(left));
+        this.faces = new HashMap<String,BlockFace>();
+        this.faces.put("front", BlockFace.valueOf(front));
+        this.faces.put("right", BlockFace.valueOf(right));
+        this.faces.put("back", BlockFace.valueOf(back));
+        this.faces.put("left", BlockFace.valueOf(left));
     }
 
     public static DirectionMap getDirectionMap(ItemFrame frame){

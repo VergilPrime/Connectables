@@ -1,38 +1,30 @@
 package com.vergilprime.connectables;
 
-import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.events.OraxenFurnitureBreakEvent;
 import io.th0rgal.oraxen.events.OraxenFurniturePlaceEvent;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import io.th0rgal.oraxen.items.OraxenItems;
-import io.th0rgal.oraxen.mechanics.provided.gameplay.furniture.FurnitureMechanic;
-import io.th0rgal.oraxen.shaded.customblockdata.CustomBlockData;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class ConnectableMechanicManager extends FurnitureMechanic implements Listener {
+public class ConnectableMechanicManager implements Listener {
     private final ConnectableMechanicFactory factory;
 
-    public ConnectableMechanicManager(ConnectableMechanicFactory factory, ConfigurationSection section) {
-        super(factory,section);
+    public ConnectableMechanicManager(ConnectableMechanicFactory factory) {
         this.factory = factory;
     }
 
@@ -240,7 +232,8 @@ public class ConnectableMechanicManager extends FurnitureMechanic implements Lis
 
         // For every nearby entity
         neighborConnectables.forEach((direction,itemFrame) -> {
-            Connect(itemFrame,0);
+            if(itemFrame != null) Connect(itemFrame,0);
+
         });
     }
 
@@ -261,30 +254,24 @@ public class ConnectableMechanicManager extends FurnitureMechanic implements Lis
             frameLocation.add(0.5,0.03125,0.5);
 
             // get a list of frames at that exact point (should only be one)
-            List<ItemFrame> neighborFrames = (List<ItemFrame>) frameLocation.getWorld().getNearbyEntities(frameLocation,0,0,0).stream().filter(new Predicate<Entity>() {
+            List<Entity> neighborEntities = frameLocation.getWorld().getNearbyEntities(frameLocation,0,0,0).stream().filter(new Predicate<Entity>() {
                 @Override
                 public boolean test(Entity entity) {
                     return  entity instanceof ItemFrame &&
                             !OraxenItems.getIdByItem(((ItemFrame) entity).getItem()).equals(null) &&
                             OraxenItems.getIdByItem(((ItemFrame) entity).getItem()) == oid;
                 }
-            });
+            }).collect(Collectors.toList());
 
             // If there are no frames in the list, nothing else to do.
-            if(neighborFrames.size() < 1){ return; }
+            if(neighborEntities.size() < 1){ return; }
+
+            // Cast Entities to ItemFrames
 
             // Matching item found!
-            itemFrames.put(direction,neighborFrames.get(0));
+            itemFrames.put(direction,(ItemFrame) neighborEntities.get(0));
         });
 
         return itemFrames;
-    }
-
-    private ConnectableMechanic getConnectableMechanic(Block block) {
-        if (block.getType() != Material.BARRIER) return null;
-        final PersistentDataContainer customBlockData = new CustomBlockData(block, OraxenPlugin.get());
-        if (!customBlockData.has(FURNITURE_KEY, PersistentDataType.STRING)) return null;
-        final String mechanicID = customBlockData.get(FURNITURE_KEY, PersistentDataType.STRING);
-        return (ConnectableMechanic) factory.getMechanic(mechanicID);
     }
 }

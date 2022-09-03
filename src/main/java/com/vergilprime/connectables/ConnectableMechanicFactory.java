@@ -11,7 +11,7 @@ public class ConnectableMechanicFactory extends BlockMechanicFactory {
     public static ConnectableMechanicFactory instance;
     public ConnectableMechanicFactory(ConfigurationSection configSection){
         super(configSection);
-        MechanicsManager.registerListeners(OraxenPlugin.get(), new ConnectableMechanicManager(this,configSection));
+        MechanicsManager.registerListeners(OraxenPlugin.get(), new ConnectableMechanicManager(this));
         instance = this;
     }
 
